@@ -1,4 +1,5 @@
 import re
+import spacy
 
 class ReviewPreprocessor:
     def __init__(self):
@@ -14,6 +15,7 @@ class ReviewPreprocessor:
             "\U000024C2-\U0001F251"
             "]+", flags=re.UNICODE
         )
+        self.nlp = spacy.load("en_core_web_sm", disable=["parser", "ner"])
 
     def clean_text(self, text: str) -> str:
         if not isinstance(text, str):
@@ -30,3 +32,10 @@ class ReviewPreprocessor:
 
         return text.strip()
 
+    def tokenize_text(self, text: str) -> list:
+        doc = self.nlp(text)
+        tokens = [
+            token.lemma_ for token in doc 
+            if not token.is_stop and token.is_alpha and len(token) > 2
+        ]
+        return tokens
