@@ -1,6 +1,9 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 import pandas as pd
 
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 # Extract top N keywords per document
 def get_top_keywords(row_vector, feature_names, top_n):
     row_array = row_vector.toarray().flatten()
@@ -25,5 +28,5 @@ def extract_keywords(df: pd.DataFrame, text_column: str, top_n: int = 5) -> pd.D
     feature_names = vectorizer.get_feature_names_out()
 
     df['keywords'] = [get_top_keywords(tfidf_matrix[i], feature_names, top_n) for i in range(tfidf_matrix.shape[0])]
-    
+    logging.info(f"Extracted keywords from the given df")
     return df
