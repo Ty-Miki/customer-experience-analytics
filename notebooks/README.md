@@ -64,6 +64,81 @@ cbe_reviews_cleaned = clean_reviews(df=cbe_reviews, drop_columns=[...], rename_c
 
 ---
 
+# Notebook: ```sentiment_and_thematic_analysis.ipynb```
+## Sentiment and Thematic Analysis of Bank App Reviews
+
+This notebook performs sentiment analysis and thematic keyword extraction on the cleaned and aggregated bank app reviews. It builds on the output of the data cleaning notebook and leverages additional utility scripts for advanced text analytics and visualization.
+
+---
+
+## Workflow Overview
+
+1. **Setup and Imports**
+   - Adds the project directory to `sys.path` for script imports.
+   - Loads the combined reviews dataset.
+
+2. **Text Preprocessing**
+   - Uses the `ReviewPreprocessor` class from `text_preprocessor.py` to clean and tokenize review text.
+   - Saves the preprocessed data for reproducibility.
+
+3. **Sentiment Analysis**
+   - Applies the `SentimentAnalyzer` from `sentiment_analysis.py` to assign sentiment labels and scores to each review.
+   - Saves sentiment results and summary statistics by bank and rating.
+
+4. **Visualization**
+   - Utilizes the `PlotGenerator` class from `plot_generator.py` to visualize mean sentiment scores by bank and rating as a bar chart.
+
+5. **Keyword Extraction**
+   - Extracts top keywords from each review using the `extract_keywords` function from `extract_keywords.py`.
+   - Saves the extracted keywords for further analysis.
+
+6. **Thematic Mapping**
+   - Maps extracted keywords to manually defined themes using `map_keywords_to_themes` from `map_keywords_with_themes.py`.
+   - Retrieves example reviews for each theme using `get_examples_by_theme`.
+
+---
+
+## Key Scripts Utilized
+
+- **`text_preprocessor.py`**: Cleans and tokenizes review text.
+- **`sentiment_analysis.py`**: Performs sentiment analysis using VADER or TextBlob.
+- **`plot_generator.py`**: Generates and saves bar chart visualizations.
+- **`extract_keywords.py`**: Extracts top keywords from review text using TF-IDF.
+- **`map_keywords_with_themes.py`**: Maps keywords to themes and retrieves example reviews per theme.
+
+---
+
+## Example Usage in Notebook
+
+```python
+# Preprocess text
+from scripts.text_preprocessor import ReviewPreprocessor
+pre_processor = ReviewPreprocessor()
+df["cleaned_review"] = df["review"].apply(pre_processor.clean_text)
+df["tokens"] = df["cleaned_review"].apply(pre_processor.tokenize_text)
+
+# Sentiment analysis
+from scripts.sentiment_analysis import SentimentAnalyzer
+sentiment_analyzer = SentimentAnalyzer()
+df["sentiment_label"], df["sentiment_score"] = zip(*df["cleaned_review"].apply(sentiment_analyzer.predict))
+
+# Visualization
+from scripts.plot_generator import PlotGenerator
+plot_generator = PlotGenerator(df=summary_df)
+plot_generator.plot_barchart(x_value="rating", y_value="mean_sentiment_score", hue="bank", ...)
+
+# Keyword extraction
+from scripts.extract_keywords import extract_keywords
+df = extract_keywords(df=df, text_column="cleaned_review", top_n=50)
+
+# Thematic mapping
+from scripts.map_keywords_with_themes import map_keywords_to_themes, get_examples_by_theme
+df['themes'] = df['keywords'].apply(lambda kws: map_keywords_to_themes(kws, keyword_theme_map))
+examples = get_examples_by_theme(df=df)
+```
+
+---
+
 ## Notes
 
 - The notebook is modular and can be extended to include more banks or additional cleaning steps.
