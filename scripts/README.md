@@ -7,6 +7,11 @@ This directory contains core scripts for customer experience analytics, focused 
 - [`scrape_reviews.py`](./scrape_reviews.py)
 - [`clean_reviews_data.py`](./clean_reviews_data.py)
 - [`load_csv.py`](./load_csv.py)
+- [`text_preprocessor.py`](./text_preprocessor.py)
+- [`sentiment_analysis.py`](./sentiment_analysis.py)
+- [`plot_generator.py`](./plot_generator.py)
+- [`extract_keywords.py`](./extract_keywords.py)
+- [`map_keywords_with_themes.py`](./map_keywords_with_themes.py)
 
 ---
 
@@ -81,6 +86,122 @@ df = load_reviews("example_reviews.csv")
 if df is not None:
     # Proceed with analysis
     pass
+```
+
+---
+
+### 4. `text_preprocessor.py`
+
+**Purpose:**  
+Provides a class for cleaning and tokenizing review text using regular expressions and spaCy.
+
+**Key Features:**
+- Removes HTML tags, URLs, emails, numbers, punctuation, emojis, and extra spaces.
+- Converts text to lowercase.
+- Tokenizes text, removes stopwords and short tokens, and lemmatizes using spaCy.
+- Designed for preprocessing text data before analysis or modeling.
+
+**Usage Example:**
+```python
+from scripts.text_preprocessor import ReviewPreprocessor
+
+preprocessor = ReviewPreprocessor()
+cleaned = preprocessor.clean_text("Great app! 😃 Visit http://example.com")
+tokens = preprocessor.tokenize_text(cleaned)
+```
+
+---
+
+### 5. `sentiment_analysis.py`
+
+**Purpose:**  
+Performs sentiment analysis on review text using VADER or TextBlob as a fallback.
+
+**Key Features:**
+- Uses VADER sentiment analysis if available, otherwise falls back to TextBlob.
+- Returns both a sentiment label (`positive`, `neutral`, `negative`) and a score.
+- Handles empty or non-string input gracefully.
+
+**Usage Example:**
+```python
+from scripts.sentiment_analysis import SentimentAnalyzer
+
+analyzer = SentimentAnalyzer()
+label, score = analyzer.predict("I love this app!")
+```
+
+---
+
+### 6. `plot_generator.py`
+
+**Purpose:**  
+Generates and saves bar charts from a pandas DataFrame using seaborn and matplotlib.
+
+**Key Features:**
+- Flexible bar chart generation with support for grouping (`hue`), custom titles, axis labels, and legends.
+- Saves plots to file and displays them.
+- Designed for quick visualization of aggregated review data.
+
+**Usage Example:**
+```python
+from scripts.plot_generator import PlotGenerator
+import pandas as pd
+
+df = pd.DataFrame({"category": ["A", "B"], "value": [10, 20]})
+plotter = PlotGenerator(df)
+plotter.plot_barchart(
+    x_value="category",
+    y_value="value",
+    title="Category Distribution",
+    file_path="category_plot.png"
+)
+```
+
+---
+
+### 7. `extract_keywords.py`
+
+**Purpose:**  
+Extracts top keywords from review text using TF-IDF.
+
+**Key Features:**
+- Uses scikit-learn’s `TfidfVectorizer` to identify important keywords in each review.
+- Adds a `keywords` column to the DataFrame with the top N keywords per review.
+- Useful for topic modeling, theme extraction, or further text analysis.
+
+**Usage Example:**
+```python
+from scripts.extract_keywords import extract_keywords
+
+df = extract_keywords(df, text_column="cleaned_review", top_n=5)
+print(df["keywords"].head())
+```
+
+---
+
+### 8. `map_keywords_with_themes.py`
+
+**Purpose:**  
+Maps extracted keywords to predefined themes and retrieves example reviews for each theme.
+
+**Key Features:**
+- Maps keywords to user-defined themes using substring matching.
+- Returns "Other" if no theme matches.
+- Collects example review texts for each theme, with a configurable maximum per theme.
+- Useful for qualitative analysis and reporting.
+
+**Usage Example:**
+```python
+from scripts.map_keywords_with_themes import map_keywords_to_themes, get_examples_by_theme
+
+themes = {"login": "Access", "crash": "Stability"}
+keywords = ["login", "crash", "fast"]
+mapped = map_keywords_to_themes(keywords, themes)
+
+# For examples by theme:
+import pandas as pd
+df = pd.DataFrame({"themes": [["Access"], ["Stability"]], "cleaned_review": ["review1", "review2"]})
+examples = get_examples_by_theme(df)
 ```
 
 ---
