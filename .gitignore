@@ -195,3 +195,5 @@ cython_debug/
 
 # Reviews data scrapped from google play
 data/
+
+config
